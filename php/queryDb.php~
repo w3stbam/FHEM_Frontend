@@ -1,0 +1,35 @@
+<?php
+//CREATE TABLE history (TIMESTAMP TIMESTAMP, DEVICE varchar(32), TYPE varchar(32), EVENT varchar(64), READING varchar(32), VALUE varchar(32), UNIT varchar(32)); 
+
+// get the method from userinput
+$userquery = $_REQUEST['query'];
+
+$db = new SQLite3('/opt/fhem/fhem.db');
+
+if ($userquery === "daily") {
+    $results = $db->query('SELECT timestamp, VALUE FROM history WHERE READING = "actual_kwh" AND TIMESTAMP BETWEEN "2013-01-20" AND "2013-01-21"');
+
+    $rows = array();
+    while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+        //echo($row["VALUE"]);
+	//var_dump($row);
+        //print_r($row);
+        $rows[] = $row;
+    }
+} else if ($userquery === "day_kwh") {
+    //$results = $db->query('SELECT timestamp, VALUE FROM history WHERE READING = "actual_kwh" AND TIMESTAMP > "2013-01-18"');
+    $results = $db->query('SELECT timestamp, VALUE FROM history WHERE READING = "day_kwh" AND TIMESTAMP > "2013-01-18"');
+
+    $rows = array();
+    while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+        //echo($row["VALUE"]);
+	//var_dump($row);
+        //print_r($row);
+        $rows[] = $row;
+    }
+}
+
+print json_encode($rows);
+
+?>
+
