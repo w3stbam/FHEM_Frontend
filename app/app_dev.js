@@ -4,9 +4,8 @@
 
 Ext.Loader.setConfig({
     enabled: true,
-    disableCaching: false,
     paths: {
-        'FHEM': '../../js/app'
+        'FHEM': './app' 
     }
 });
 

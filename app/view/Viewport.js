@@ -18,7 +18,7 @@ Ext.define('FHEM.view.Viewport', {
             items: [
                 {
                     region: 'north',
-                    html: '<img src="resources/images/fhemicon.png" height="50px"/><h1 class="x-panel-header" align="center">FHEM Webfrontend</h1>',
+                    html: '<img src="../../icons/fhemicon.png" height="50px"/><h1 class="x-panel-header" align="center">FHEM Webfrontend</h1>',
                     height: 70
                 }, {
                     region: 'west',
@@ -29,6 +29,7 @@ Ext.define('FHEM.view.Viewport', {
                     items: [
                         {
                             xtype: 'panel',
+                            name: 'culpanel',
                             title: 'CUL'
                         },
                         {
@@ -72,10 +73,15 @@ Ext.define('FHEM.view.Viewport', {
                         }
                     ]
                 }, {
+                    xtype: 'panel',
                     region: 'south',
                     title: 'Status',
                     collapsible: true,
-                    html: 'The status of FHEM Server will follow here...',
+                    items: [{
+                        xtype: 'text',
+                        name: 'statustextfield',
+                        text: 'Status...'
+                    }],
                     split: true,
                     height: 100,
                     minHeight: 100
@@ -84,7 +90,7 @@ Ext.define('FHEM.view.Viewport', {
                     xtype: 'simplechartpanel',
                     title: 'Charts',
                     region: 'center',
-                    layout: 'vbox'
+                    layout: 'fit'
                 }
             ]
         });

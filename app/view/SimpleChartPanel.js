@@ -19,9 +19,27 @@ Ext.define('FHEM.view.SimpleChartPanel', {
         
         var me = this;
         
-        me.comboAxesStore = Ext.create('FHEM.store.DBStore');
+        // set up the local db columnname store
+        // as these columns are fixed, we dont have to request them
+        me.comboAxesStore = Ext.create('Ext.data.Store', {
+            fields: ['name'],
+            data : [
+                {'name':'TIMESTAMP'},
+                {'name':'DEVICE'},
+                {'name':'TYPE'},
+                {'name':'EVENT'},
+                {'name':'READING'},
+                {'name':'VALUE'},
+                {'name':'UNIT'}
+            ]
+        });
         
         me.comboDeviceStore = Ext.create('FHEM.store.DeviceStore');
+        me.comboDeviceStore.on("load", function(store, e, success) {
+            if(!success) {
+                Ext.Msg.alert("Error", "Connection to database failed! Check your configuration.");
+            }
+        });
         
         me.comboReadingsStore = Ext.create('FHEM.store.ReadingsStore');
         
@@ -32,6 +50,8 @@ Ext.define('FHEM.view.SimpleChartPanel', {
             defaults: {
                 width: 250
             },
+            minHeight: 30,
+            maxHeight: 60,
             items: [
                 {  
                     xtype: 'combobox', 
@@ -39,7 +59,6 @@ Ext.define('FHEM.view.SimpleChartPanel', {
                     fieldLabel: 'Select Device',
                     store: me.comboDeviceStore,
                     displayField: 'DEVICE',
-                    mode: 'local',
                     valueField: 'DEVICE'
                 },
                 {  
@@ -67,9 +86,9 @@ Ext.define('FHEM.view.SimpleChartPanel', {
                     disabled: true,
                     fieldLabel: 'Select Day'
                 },
-                '->',
                 {
                     xtype: 'button',
+                    width: 100,
                     style: {
                         text: 'bold',
                         border: '1px solid red'
@@ -80,6 +99,7 @@ Ext.define('FHEM.view.SimpleChartPanel', {
                 },
                 {
                     xtype: 'button',
+                    width: 100,
                     text: 'Save Chart',
                     disabled: true,
                     name: 'savechartdata'
@@ -90,8 +110,6 @@ Ext.define('FHEM.view.SimpleChartPanel', {
         me.items = [
                 {
                     xtype: 'simplechartview',
-                    flex: 1,
-                    height: '80%',
                     width: '100%'
                 }
         ];

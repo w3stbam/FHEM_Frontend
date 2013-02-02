@@ -62,8 +62,9 @@ Ext.define('FHEM.view.SimpleChartView', {
                 }
             }
         } ];
-
+        
         me.callParent(arguments);
-
+        
     }
+    
 });

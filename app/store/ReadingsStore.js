@@ -6,11 +6,8 @@ Ext.define('FHEM.store.ReadingsStore', {
     model: 'FHEM.model.ReadingsModel',
     proxy: {
         type: 'ajax',
-        extraParams: {
-            query: 'getreadings'
-        },
         method: 'POST',
-        url: 'php/queryDb.php',
+        url: '', //gets set by controller after device has been selected
         reader: {
             type: 'json'
         }

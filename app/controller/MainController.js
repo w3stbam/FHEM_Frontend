@@ -8,7 +8,17 @@ Ext.define('FHEM.controller.MainController', {
            {
                selector: 'viewport[name=mainviewport]',
                ref: 'mainviewport' //this.getMainviewport()
+           },
+           {
+               selector: 'text[name=statustextfield]',
+               ref: 'statustextfield' //this.getStatustextfield()
+           },
+           {
+               selector: 'panel[name=culpanel]',
+               ref: 'culpanel' //this.getCulpanel()
            }
+           
+           
            
     ],
 
@@ -26,20 +36,39 @@ Ext.define('FHEM.controller.MainController', {
     viewportRendered: function(){
         //TODO: implement...
         
-//        Ext.Ajax.request({
-//            method: 'GET',
-//            disableCaching: false,
-//            url: 'php/getGlobalJson.php',
-//            success: function(response){
-//                var text = response.responseText;
-//                console.log(text);
-//                peter = Ext.decode(text);
-//                // process server response here
-//            },
-//            failure: function() {
-//                Ext.Msg.alert("Error", "The connection to FHEM could not be established");
-//            }
-//        });
+        var me = this,
+            url = '../../../fhem?cmd=jsonlist&XHR=1';
+        
+        Ext.Ajax.request({
+            method: 'GET',
+            disableCaching: false,
+            url: url,
+            success: function(response){
+                json = Ext.decode(response.responseText);
+                version = json.Results[0].devices[0].ATTR.version;
+                
+                var sp = me.getStatustextfield();
+                sp.setText(version);
+                
+                var cp = me.getCulpanel();
+                
+                Ext.each(json.Results, function(result) {
+                    if (result.list === "CUL") {
+                        var culname = result.devices[0].NAME;
+                        cp.add(
+                            {
+                                xtype: 'text',
+                                text: culname
+                            }
+                        );
+                    }
+                });
+                
+            },
+            failure: function() {
+                Ext.Msg.alert("Error", "The connection to FHEM could not be established");
+            }
+        });
         
     }
 });

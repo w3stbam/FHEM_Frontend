@@ -6,11 +6,8 @@ Ext.define('FHEM.store.DBStore', {
     model: 'FHEM.model.DBModel',
     proxy: {
         type: 'ajax',
-        extraParams: {
-            query: 'describetable'
-        },
         method: 'POST',
-        url: 'php/queryDb.php',
+        url: '../../../fhem?cmd={queryDbLog("describetable")}&XHR=1',
         reader: {
             type: 'json'
         }
