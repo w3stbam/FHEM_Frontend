@@ -134,7 +134,7 @@ sub queryDbLog(@_) {
      
         for ($i = 0; $i < $columncnt; $i++) {
             $jsonstring .= "'";
-            $jsonstring .= "$query_handle->{NAME}->[$i]"; 
+            $jsonstring .= uc($query_handle->{NAME}->[$i]); 
             $jsonstring .= "':'";
             $jsonstring .= $data[$i];
             
