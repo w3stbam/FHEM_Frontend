@@ -53,7 +53,7 @@ sub prepareSql(@_) {
     } elsif($userquery eq "describetable") {
         $sql = 'PRAGMA table_info([history]);';
     } elsif($userquery eq "daily") {
-        $sql = 'SELECT '.$xaxis.', VALUE FROM history WHERE READING = "'.$yaxis.'" AND device = "'.$device.'" AND TIMESTAMP Between "'.$starttime.'" AND "'.$endtime.'";';
+        $sql = 'SELECT '.$xaxis.', VALUE FROM history WHERE READING = "'.$yaxis.'" AND DEVICE = "'.$device.'" AND TIMESTAMP Between "'.$starttime.'" AND "'.$endtime.'";';
     } else {
         die jsonError("Could not setup SQL String");
     }
