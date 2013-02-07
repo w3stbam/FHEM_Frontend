@@ -35,8 +35,15 @@ Ext.define('FHEM.view.Viewport', {
                         {
                             xtype: 'panel',
                             title: 'Plots',
+                            layout: 'fit',
                             collapsed: false,
                             items: [
+                                {
+                                    xtype: 'grid',
+                                    columns: [{header: 'Saved Charts', dataIndex: 'VALUE', width: '90%'}],
+                                    store: Ext.create('FHEM.store.SavedChartsStore', {}),
+                                    name: 'savedchartsgrid'
+                                }
                             ]
                         },
                         {

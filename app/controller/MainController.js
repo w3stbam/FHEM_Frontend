@@ -18,8 +18,6 @@ Ext.define('FHEM.controller.MainController', {
                ref: 'culpanel' //this.getCulpanel()
            }
            
-           
-           
     ],
 
     init: function() {
@@ -34,8 +32,10 @@ Ext.define('FHEM.controller.MainController', {
      * load the FHEM devices and state on viewport render completion
      */
     viewportRendered: function(){
-        //TODO: implement...
+        //TODO: implement full featured informationdisplay from jsonlist...
         
+        
+        // Gather information from FHEM too display status, devices, etc.
         var me = this,
             url = '../../../fhem?cmd=jsonlist&XHR=1';
         

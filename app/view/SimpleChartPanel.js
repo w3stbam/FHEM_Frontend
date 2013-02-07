@@ -47,11 +47,8 @@ Ext.define('FHEM.view.SimpleChartPanel', {
             xtype: 'toolbar',
             dock: 'top',
             layout: 'column',
-            defaults: {
-                width: 250
-            },
-            minHeight: 30,
-            maxHeight: 60,
+            minheight: 60,
+            maxHeight: 90,
             items: [
                 {  
                     xtype: 'combobox', 
@@ -66,7 +63,6 @@ Ext.define('FHEM.view.SimpleChartPanel', {
                     name: 'xaxiscombo',
                     fieldLabel: 'Select X Axis',
                     store: me.comboAxesStore,
-                    disabled: true,
                     displayField: 'name',
                     valueField: 'name'
                 },
@@ -75,34 +71,44 @@ Ext.define('FHEM.view.SimpleChartPanel', {
                     name: 'yaxiscombo',
                     fieldLabel: 'Select Y Axis',
                     store: me.comboReadingsStore,
-                    disabled: true,
                     displayField: 'READING',
                     valueField: 'READING'
                 },
                 {
                     xtype: 'datefield',
-                    name: 'daycharttimepicker',
+                    name: 'starttimepicker',
                     format: 'Y-m-d H:i:s',
-                    disabled: true,
-                    fieldLabel: 'Select Day'
+                    fieldLabel: 'Select Starttime'
+                },
+                {
+                    xtype: 'datefield',
+                    name: 'endtimepicker',
+                    format: 'Y-m-d H:i:s',
+                    fieldLabel: 'Select Endtime'
                 },
                 {
                     xtype: 'button',
                     width: 100,
-                    style: {
-                        text: 'bold',
-                        border: '1px solid red'
-                    },
                     text: 'Show Chart',
-                    disabled: true,
                     name: 'requestchartdata'
                 },
                 {
                     xtype: 'button',
                     width: 100,
                     text: 'Save Chart',
-                    disabled: true,
                     name: 'savechartdata'
+                },
+                {
+                    xtype: 'button',
+                    width: 100,
+                    text: 'Step back',
+                    name: 'stepback'
+                },
+                {
+                    xtype: 'button',
+                    width: 100,
+                    text: 'Step forward',
+                    name: 'stepforward'
                 }
             ]
         }];

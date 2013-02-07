@@ -44,7 +44,9 @@ sub prepareSql(@_) {
     my $yaxis = $_[3];
     my $starttime = $_[4];
     my $endtime = $_[5];
+    my $savename = $_[6];
     my $sql;
+    my $jsonstring;
  
     if($userquery eq "getreadings") {
         $sql = "SELECT distinct(reading) FROM current WHERE device = '".$device."'";
@@ -54,6 +56,11 @@ sub prepareSql(@_) {
         $sql = 'PRAGMA table_info([history]);';
     } elsif($userquery eq "daily") {
         $sql = 'SELECT '.$xaxis.', VALUE FROM history WHERE READING = "'.$yaxis.'" AND DEVICE = "'.$device.'" AND TIMESTAMP Between "'.$starttime.'" AND "'.$endtime.'";';
+    } elsif($userquery eq "savechart") {
+        $jsonstring = '[{x:"'.$xaxis.'",y:"'.$yaxis.'",device:"'.$device.'",starttime:"'.$starttime.'",endtime:"'.$endtime.'"}]';
+        $sql = "INSERT INTO history (EVENT, READING, VALUE) VALUES('".$jsonstring."', 'savedchart', '".$savename."')";
+    } elsif($userquery eq "getcharts") {
+        $sql = 'SELECT * FROM history WHERE READING = "savedchart"';
     } else {
         die jsonError("Could not setup SQL String");
     }
@@ -113,15 +120,23 @@ sub queryDbLog(@_) {
     my $dbh = connectDbLog($dbconf); 
     
     my $query_handle = $dbh->prepare($sql) 
-        or die jsonError("Couldn't prepare statement: " . $dbh->errstr);
+        or die jsonError("Couldn't prepare statement: " . $dbh->errstr . ", SQL was: " .$sql);
     
     # EXECUTE THE QUERY
     $query_handle->execute() 
         or die jsonError("Couldn't execute statement: " . $query_handle->errstr);
     
     my $columns = $query_handle->{'NAME'};
-    my $columncnt = scalar @$columns;
+    my $columncnt;
     
+    # When columns are empty but execution was successful, we have done a successful INSERT
+    if($columns) {
+        $columncnt = scalar @$columns;
+    } else {
+        return "{success: true, msg:'Insert ok'}\n";
+    }
+    
+
     my $i = 0;
     my $jsonstring = "[";
     while ( my @data = $query_handle->fetchrow_array()) {
