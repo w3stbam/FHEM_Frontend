@@ -1,5 +1,5 @@
 /**
- * 
+ * Store for the Readings
  */
 Ext.define('FHEM.store.ReadingsStore', {
     extend: 'Ext.data.Store',
@@ -9,7 +9,9 @@ Ext.define('FHEM.store.ReadingsStore', {
         method: 'POST',
         url: '', //gets set by controller after device has been selected
         reader: {
-            type: 'json'
+            type: 'json',
+            root: 'data',
+            totalProperty: 'totalCount'
         }
     },
     autoLoad: false

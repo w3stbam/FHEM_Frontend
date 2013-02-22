@@ -1,5 +1,5 @@
 /**
- * 
+ * Store for the Devices
  */
 Ext.define('FHEM.store.DeviceStore', {
     extend: 'Ext.data.Store',
@@ -7,9 +7,11 @@ Ext.define('FHEM.store.DeviceStore', {
     proxy: {
         type: 'ajax',
         method: 'POST',
-        url: '../../../fhem?cmd={queryDbLog("getdevices")}&XHR=1',
+        url: '../../../fhem?cmd=get+' + FHEM.dblogname + '+-+webchart+""+""+""+getdevices&XHR=1',
         reader: {
-            type: 'json'
+            type: 'json',
+            root: 'data',
+            totalProperty: 'totalCount'
         }
     },
     autoLoad: false

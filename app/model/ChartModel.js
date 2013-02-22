@@ -1,5 +1,5 @@
 /**
- * 
+ * Model for Charts
  */
 Ext.define('FHEM.model.ChartModel', {
     extend: 'Ext.data.Model',

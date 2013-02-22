@@ -1,5 +1,5 @@
 /**
- * 
+ * Store for the saved Charts
  */
 Ext.define('FHEM.store.SavedChartsStore', {
     extend: 'Ext.data.Store',
@@ -7,9 +7,11 @@ Ext.define('FHEM.store.SavedChartsStore', {
         proxy: {
             type: 'ajax',
              method: 'POST',
-             url: '../../../fhem?cmd={queryDbLog("getcharts")}&XHR=1',
+             url: '../../../fhem?cmd=get+' + FHEM.dblogname + '+-+webchart+""+""+""+getcharts&XHR=1',
              reader: {
-                 type: 'json'
+                 type: 'json',
+                 root: 'data',
+                 totalProperty: 'totalCount'
              }
      },
      autoLoad: true

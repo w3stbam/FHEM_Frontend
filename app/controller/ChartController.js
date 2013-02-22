@@ -1,5 +1,5 @@
 /**
- * 
+ * Controller handling the charts
  */
 Ext.define('FHEM.controller.ChartController', {
     extend: 'Ext.app.Controller',
@@ -34,16 +34,16 @@ Ext.define('FHEM.controller.ChartController', {
                ref: 'yaxiscombo' //this.getYaxiscombo()
            },
            {
-               selector: 'simplechartview',
-               ref: 'simplechartview' //this.getSimplechartview()
+               selector: 'linechartview',
+               ref: 'linechartview' //this.getLinechartview()
            },
            {
-               selector: 'simplechartpanel',
-               ref: 'simplechartpanel' //this.getSimplechartpanel()
+               selector: 'linechartpanel',
+               ref: 'linechartpanel' //this.getLinechartpanel()
            },
            {
-               selector: 'simplechartpanel toolbar',
-               ref: 'simplecharttoolbar' //this.getSimplecharttoolbar()
+               selector: 'linechartpanel toolbar',
+               ref: 'linecharttoolbar' //this.getLinecharttoolbar()
            },
            {
                selector: 'grid[name=savedchartsgrid]',
@@ -53,6 +53,9 @@ Ext.define('FHEM.controller.ChartController', {
            
     ],
 
+    /**
+     * init function to register listeners
+     */
     init: function() {
         this.control({
             'combobox[name=devicecombo]': {
@@ -70,12 +73,16 @@ Ext.define('FHEM.controller.ChartController', {
             'button[name=stepforward]': {
                 click: this.stepchange
             },
-            'simplechartview': {
+            'linechartview': {
                 afterrender: this.enableZoomInChart
             },
             'grid[name=savedchartsgrid]': {
                 cellclick: this.loadsavedchart
+            },
+            'actioncolumn[name=savedchartsactioncolumn]': {
+                click: this.deletechart
             }
+            
         });
         
     },
@@ -90,7 +97,7 @@ Ext.define('FHEM.controller.ChartController', {
             proxy = store.getProxy();
         
         if (proxy) {
-            proxy.url = '../../../fhem?cmd={queryDbLog("getreadings","' + device + '")}&XHR=1';
+            proxy.url = '../../../fhem?cmd=get+' + FHEM.dblogname + '+-+webchart+""+""+' + device + '+getreadings&XHR=1';
             store.load();
         }
         
@@ -107,25 +114,24 @@ Ext.define('FHEM.controller.ChartController', {
             xaxis = me.getXaxiscombo().getValue(),
             yaxis = me.getYaxiscombo().getValue(),
             starttime = me.getStarttimepicker().getValue(),
-            dbstarttime = Ext.Date.format(starttime, 'Y-m-d H:i:s'),
+            dbstarttime = Ext.Date.format(starttime, 'Y-m-d_H:i:s'),
             endtime = me.getEndtimepicker().getValue(),
-            dbendtime = Ext.Date.format(endtime, 'Y-m-d H:i:s'),
-            view = me.getSimplechartview(),
-            store = me.getSimplechartview().getStore(),
+            dbendtime = Ext.Date.format(endtime, 'Y-m-d_H:i:s'),
+            view = me.getLinechartview(),
+            store = me.getLinechartview().getStore(),
             proxy = store.getProxy();
         
         //register store listeners
         store.on("beforeload", function() {
-            me.getSimplechartview().setLoading(true);
+            me.getLinechartview().setLoading(true);
         });
         store.on("load", function() {
-            me.getSimplechartview().setLoading(false);
+            me.getLinechartview().setLoading(false);
         });
         
         if (proxy) {
-            
-            var url = '../../../fhem?cmd={queryDbLog("daily","' + device + '",';
-                url += '"' + xaxis + '","' + yaxis + '","' + dbstarttime + '","' + dbendtime + '")}&XHR=1';
+            var url = '../../../fhem?cmd=get+' + FHEM.dblogname + '+-+webchart+' + dbstarttime + '+' + dbendtime + '+';
+                url +=device + '+timerange+' + xaxis + '+' + yaxis + '&XHR=1'; 
             proxy.url = url;
             store.load();
         }
@@ -141,7 +147,7 @@ Ext.define('FHEM.controller.ChartController', {
         view.axes.get(1).toDate = endtime;
         view.axes.get(1).processView();
         
-        me.getSimplechartview().redraw();
+        me.getLinechartview().redraw();
         
     },
     
@@ -149,7 +155,7 @@ Ext.define('FHEM.controller.ChartController', {
      * perpare zooming
      */
     enableZoomInChart: function() {
-        var view = this.getSimplechartview();
+        var view = this.getLinechartview();
         view.mon(view.getEl(), 'mousewheel', this.zoomInChart, this);
     },
     
@@ -158,7 +164,7 @@ Ext.define('FHEM.controller.ChartController', {
      */
     zoomInChart: function(e) {
         var wheeldelta = e.getWheelDelta(),
-            view = this.getSimplechartview(),
+            view = this.getLinechartview(),
             currentmax = view.axes.get(0).prevMax,
             newmax;
         
@@ -212,46 +218,62 @@ Ext.define('FHEM.controller.ChartController', {
     saveChartData: function() {
         
         var me = this;
-        Ext.Msg.prompt("Select a name", "Enter a name to save the Chart", function(action, text) {
-            if (action === "ok" && !Ext.isEmpty(text)) {
+        Ext.Msg.prompt("Select a name", "Enter a name to save the Chart", function(action, savename) {
+            if (action === "ok" && !Ext.isEmpty(savename)) {
                 
-                var device = this.getDevicecombo().getValue(),
-                    xaxis = this.getXaxiscombo().getValue(),
-                    yaxis = this.getYaxiscombo().getValue(),
-                    starttime = this.getStarttimepicker().getValue(),
-                    dbstarttime = Ext.Date.format(starttime, 'Y-m-d H:i:s'),
-                    endtime = this.getEndtimepicker().getValue(),
-                    dbendtime = Ext.Date.format(endtime, 'Y-m-d H:i:s'),
-                    savename = text,
-                    view = this.getSimplechartview();
+                //getting all devices, check for same name
+                var store = me.getSavedchartsgrid().getStore(),
+                storednames = [];
             
-            
-                var url = '../../../fhem?cmd={queryDbLog("savechart","' + device +
-                           '","' + xaxis + '","' + yaxis + 
-                           '","' + dbstarttime + '","' + dbendtime + 
-                           '","' + savename + '")}&XHR=1';
-                
-                view.setLoading(true);
-                
-                Ext.Ajax.request({
-                    method: 'GET',
-                    disableCaching: false,
-                    url: url,
-                    success: function(response){
-                        view.setLoading(false);
-                        var json = Ext.decode(response.responseText);
-                        if (json.success === true) {
-                            me.getSavedchartsgrid().getStore().load();
-                            Ext.Msg.alert("Success", "Chart successfully saved!");
-                        } else {
-                            Ext.Msg.alert("Error", "The Chart could not be saved!");
-                        }
-                    },
-                    failure: function() {
-                        view.setLoading(false);
-                        Ext.Msg.alert("Error", "The Chart could not be saved!");
-                    }
+                store.each(function(record){
+                    var name = record.get('VALUE');
+                    storednames.push(name);
                 });
+                
+                if (Ext.Array.contains(storednames, savename)) {
+                    Ext.Msg.alert("Error", "There already is a chart with the name: " + savename);
+                } else {
+                    
+                    var device = this.getDevicecombo().getValue(),
+                        xaxis = this.getXaxiscombo().getValue(),
+                        yaxis = this.getYaxiscombo().getValue(),
+                        starttime = this.getStarttimepicker().getValue(),
+                        dbstarttime = Ext.Date.format(starttime, 'Y-m-d_H:i:s'),
+                        endtime = this.getEndtimepicker().getValue(),
+                        dbendtime = Ext.Date.format(endtime, 'Y-m-d_H:i:s'),
+                        view = this.getLinechartview();
+                
+                    var url = '../../../fhem?cmd=get+' + FHEM.dblogname + '+-+webchart+' + dbstarttime + '+' + dbendtime + '+';
+                        url +=device + '+savechart+' + xaxis + '+' + yaxis + '+' + savename + '&XHR=1'; 
+                    
+                    view.setLoading(true);
+                    
+                    Ext.Ajax.request({
+                        method: 'GET',
+                        disableCaching: false,
+                        url: url,
+                        success: function(response){
+                            view.setLoading(false);
+                            var json = Ext.decode(response.responseText);
+                            if (json.success === true) {
+                                me.getSavedchartsgrid().getStore().load();
+                                Ext.Msg.alert("Success", "Chart successfully saved!");
+                            } else if (json.msg) {
+                                Ext.Msg.alert("Error", "The Chart could not be saved, error Message is:<br><br>" + json.msg);
+                            } else {
+                                Ext.Msg.alert("Error", "The Chart could not be saved!");
+                            }
+                        },
+                        failure: function() {
+                            view.setLoading(false);
+                            if (json && json.msg) {
+                                Ext.Msg.alert("Error", "The Chart could not be saved, error Message is:<br><br>" + json.msg);
+                            } else {
+                                Ext.Msg.alert("Error", "The Chart could not be saved!");
+                            }
+                        }
+                    });
+                }
             }
         }, this);
         
@@ -261,21 +283,98 @@ Ext.define('FHEM.controller.ChartController', {
      * loading saved chart data and trigger the load of the chart
      */
     loadsavedchart: function(grid, td, cellIndex, record) {
+
+        if (cellIndex === 0) {
+            var name = record.get('NAME');
+            chartdata = record.get('VALUE')[0];
+            
+            if (chartdata && !Ext.isEmpty(chartdata)) {
+                this.getDevicecombo().setValue(chartdata.device);
+                // load storedata for readings after device has been selected
+                this.deviceSelected(this.getDevicecombo());
+                
+                this.getXaxiscombo().setValue(chartdata.x);
+                this.getYaxiscombo().setValue(chartdata.y);
+                this.getStarttimepicker().setValue(chartdata.starttime);
+                this.getEndtimepicker().setValue(chartdata.endtime);
+                
+                this.requestChartData();
+                this.getLinechartpanel().setTitle(name);
+            } else {
+                Ext.Msg.alert("Error", "The Chart could not be loaded!");
+            }
+            
+        }
+    },
+    
+    /**
+     * Delete a chart by its name from the database
+     */
+    deletechart: function(grid, td, cellIndex, par, evt, record) {
         
-        var name = record.get('VALUE');
-        var chartdata = Ext.decode(record.get('EVENT'))[0];
+        var me = this,
+            chartname = record.get('NAME'),
+            view = this.getLinechartview();
         
-        this.getDevicecombo().setValue(chartdata.device);
-        // load storedata for readings after device has been selected
-        this.deviceSelected(this.getDevicecombo());
-        
-        this.getXaxiscombo().setValue(chartdata.x);
-        this.getYaxiscombo().setValue(chartdata.y);
-        this.getStarttimepicker().setValue(chartdata.starttime);
-        this.getEndtimepicker().setValue(chartdata.endtime);
-        
-        this.requestChartData();
-        this.getSimplechartpanel().setTitle(name);
-        
+        if (Ext.isDefined(chartname) && chartname !== "") {
+            
+            Ext.create('Ext.window.Window', {
+                width: 250,
+                layout: 'fit',
+                title:'Delete?',
+                modal: true,
+                items: [
+                    {
+                        xtype: 'displayfield',
+                        value: 'Do you really want to delete this chart?'
+                    }
+                ],  
+                buttons: [{ 
+                    text: "Ok", 
+                    handler: function(btn){ 
+                        
+                        var url = '../../../fhem?cmd=get+' + FHEM.dblogname + '+-+webchart+""+""+""+deletechart+""+""+' + chartname + '&XHR=1'; 
+                    
+                        view.setLoading(true);
+                        
+                        Ext.Ajax.request({
+                            method: 'GET',
+                            disableCaching: false,
+                            url: url,
+                            success: function(response){
+                                view.setLoading(false);
+                                var json = Ext.decode(response.responseText);
+                                if (json && json.success === true) {
+                                    me.getSavedchartsgrid().getStore().load();
+                                    Ext.Msg.alert("Success", "Chart successfully deleted!");
+                                } else if (json && json.msg) {
+                                    Ext.Msg.alert("Error", "The Chart could not be deleted, error Message is:<br><br>" + json.msg);
+                                } else {
+                                    Ext.Msg.alert("Error", "The Chart could not be deleted!");
+                                }
+                                btn.up().up().destroy();
+                            },
+                            failure: function() {
+                                view.setLoading(false);
+                                if (json && json.msg) {
+                                    Ext.Msg.alert("Error", "The Chart could not be deleted, error Message is:<br><br>" + json.msg);
+                                } else {
+                                    Ext.Msg.alert("Error", "The Chart could not be deleted!");
+                                }
+                                btn.up().up().destroy();
+                            }
+                        });
+                    }
+                },
+                {
+                    text: "Cancel",
+                    handler: function(btn){
+                        btn.up().up().destroy();
+                    }
+                }]
+            }).show();
+        }
+            
     }
+
 });
