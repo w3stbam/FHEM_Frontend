@@ -395,6 +395,16 @@ DbLog_Connect($)
   }
   Log 3, "Connection to db $dbconn established";
   $hash->{DBH}= $dbh;
+  
+  # creating an own connection for the webfrontend, saved as DBHF in Hash
+  # this makes sure that the connection doesnt get lost due to other modules
+  my $dbhf = DBI->connect_cached("dbi:$dbconn", $dbuser, $dbpassword);
+  if(!$dbhf) {
+    Log 2, "Can't connect to $dbconn: $DBI::errstr";
+    return 0;
+  }
+  Log 3, "Connection to db $dbconn established";
+  $hash->{DBHF}= $dbhf;
 
   return 1;
 }
@@ -793,12 +803,13 @@ sub chartQuery($@) {
     }
 
     my ($hash, @a) = @_;
-    my $dbh= $hash->{DBH};
+    my $dbhf= $hash->{DBHF};
+
     my $totalcount;
     
     if (defined $countsql && $countsql ne "") {
-        my $query_handle = $dbh->prepare($countsql) 
-        or return jsonError("Couldn't prepare statement: " . $dbh->errstr . ", SQL was: " .$countsql);
+        my $query_handle = $dbhf->prepare($countsql) 
+        or return jsonError("Couldn't prepare statement: " . $dbhf->errstr . ", SQL was: " .$countsql);
         
         $query_handle->execute() 
         or return jsonError("Couldn't execute statement: " . $query_handle->errstr);
@@ -807,9 +818,10 @@ sub chartQuery($@) {
         $totalcount = join(", ", @data);
         
     }
+
     # prepare the query
-    my $query_handle = $dbh->prepare($sql) 
-        or return jsonError("Couldn't prepare statement: " . $dbh->errstr . ", SQL was: " .$sql);
+    my $query_handle = $dbhf->prepare($sql) 
+        or return jsonError("Couldn't prepare statement: " . $dbhf->errstr . ", SQL was: " .$sql);
     
     # execute the query
     $query_handle->execute() 
@@ -817,7 +829,7 @@ sub chartQuery($@) {
     
     my $columns = $query_handle->{'NAME'};
     my $columncnt;
-    
+
     # When columns are empty but execution was successful, we have done a successful INSERT, UPDATE or DELETE
     if($columns) {
         $columncnt = scalar @$columns;
@@ -835,7 +847,7 @@ sub chartQuery($@) {
         } else {
             $jsonstring .= ',{';
         } 
-     
+ 
         for ($i = 0; $i < $columncnt; $i++) {
             $jsonstring .= '"';
             $jsonstring .= uc($query_handle->{NAME}->[$i]); 
@@ -1308,4 +1320,3 @@ sub chartQuery($@) {
 
 =end html_DE
 =cut
-
