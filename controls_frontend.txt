@@ -5,3 +5,4 @@ DIR www/frontend/app/store
 DIR www/frontend/app/view
 DIR www/frontend/app/controller
 DIR www/frontend/lib
+DIR www/frontend/lib/ext-4.1.1a
