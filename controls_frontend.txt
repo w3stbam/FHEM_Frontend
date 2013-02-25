@@ -19,21 +19,6 @@ DIR www/frontend/lib/ext-4.1.1a/images/gray/toolbar
 DIR www/frontend/lib/ext-4.1.1a/images/gray/shared
 DIR www/frontend/lib/ext-4.1.1a/images/gray/btn
 DIR www/frontend/lib/ext-4.1.1a/images/gray/btn-group
-DIR www/frontend/lib/ext-4.1.1a/images/gray/tab-bar
-DIR www/frontend/lib/ext-4.1.1a/images/gray/progress
-DIR www/frontend/lib/ext-4.1.1a/images/gray/boundlist
-DIR www/frontend/lib/ext-4.1.1a/images/gray/dd
-DIR www/frontend/lib/ext-4.1.1a/images/gray/box
-DIR www/frontend/lib/ext-4.1.1a/images/gray/form
-DIR www/frontend/lib/ext-4.1.1a/images/gray/menu
-DIR www/frontend/lib/ext-4.1.1a/images/gray/slider
-DIR www/frontend/lib/ext-4.1.1a/images/gray/button
-DIR www/frontend/lib/ext-4.1.1a/images/gray/layout
-DIR www/frontend/lib/ext-4.1.1a/images/gray/panel
-DIR www/frontend/lib/ext-4.1.1a/images/gray/window
-DIR www/frontend/lib/ext-4.1.1a/images/gray/grid
-DIR www/frontend/lib/ext-4.1.1a/images/gray/util
-DIR www/frontend/lib/ext-4.1.1a/images/gray/panel-header
-DIR www/frontend/lib/ext-4.1.1a/images/gray/tip
+
 
 
