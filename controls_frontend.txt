@@ -16,7 +16,3 @@ DIR www/frontend/lib/ext-4.1.1a/images/gray/datepicker
 DIR www/frontend/lib/ext-4.1.1a/images/gray/sizer
 DIR www/frontend/lib/ext-4.1.1a/images/gray/tab 
 DIR www/frontend/lib/ext-4.1.1a/images/gray/toolbar 
-
-
-
-
