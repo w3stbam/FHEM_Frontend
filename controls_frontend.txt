@@ -1,2 +1,5 @@
 DIR www/frontend
-UPD 2013-02-24_19:15:00 229396 www/frontend/index.html
+UPD 2013-02-24_19:15:00 494 www/frontend/index.html
+UPD 2013-02-24_19:15:00 4096 www/frontend/app
+UPD 2013-02-24_19:15:00 49185 FHEM/93_DbLog.pm
+
