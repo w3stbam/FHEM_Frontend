@@ -1,2 +1,2 @@
 DIR www/frontend
-UPD 2013-02-24_19:15:00 494 index.html
+UPD 2013-02-24_19:15:00 229396 www/frontend/index.html
