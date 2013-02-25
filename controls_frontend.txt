@@ -6,3 +6,7 @@ DIR www/frontend/app/view
 DIR www/frontend/app/controller
 DIR www/frontend/lib
 DIR www/frontend/lib/ext-4.1.1a
+DIR www/frontend/lib/ext-4.1.1a/images
+DIR www/frontend/lib/ext-4.1.1a/images/gray
+DIR www/frontend/lib/ext-4.1.1a/images/gray/tools
+DIR www/frontend/lib/ext-4.1.1a/images/gray/tree
